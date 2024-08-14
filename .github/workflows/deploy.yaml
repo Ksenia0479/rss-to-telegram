@@ -1,4 +1,4 @@
-name: Deploy main 
+name: Deploy main
 on:
   push:
     branches:
@@ -7,28 +7,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Starting Deploy Docker to EB"
-      - run: echo "This job is running on a ${{ runner.os }} server hosted by GitHub!"
-
+      - name: Starting Deploy Docker to EB
+        run: echo "Starting Deploy Docker to EB"
+      - name: Show runner OS
+        run: echo "This job is running on a ${{ runner.os }} server hosted by GitHub!"
       - name: Checkout code
-      - uses: actions/checkout@v4
-
+        uses: actions/checkout@v4
       - name: Login to DockerHub
-      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       # - name: Build and test React client
-      # - run: docker build -t ksch0479/react-test -f ./client/Dockerfile.dev ./client
-      # - run: docker run -e CI=true ksch0479/react-test npm test
-
+      #   run: |
+      #     docker build -t ksch0479/react-test -f ./client/Dockerfile.dev ./client
+      #     docker run -e CI=true ksch0479/react-test npm test
       - name: Build Docker image
-      - run: docker build -t ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest ./
-
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest ./
       - name: Push images to DockerHub
-      - run: docker push ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest
-
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
-
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v22
         with:
