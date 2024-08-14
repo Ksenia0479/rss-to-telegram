@@ -1,0 +1,24 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.alwaysShowStatus": true,
+  "markdownlint.config": {
+    "MD041": false
+  },
+  "cSpell.words": [
+    "bullmq",
+    "datasource",
+    "dbgenerated",
+    "deunionize",
+    "einaregilsson",
+    "ksch",
+    "Openai",
+    "pullquote",
+    "tlang",
+    "tlanguage",
+    "typegram",
+    "unposted"
+  ]
+}

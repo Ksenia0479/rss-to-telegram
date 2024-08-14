@@ -1,0 +1,42 @@
+name: Deploy main 
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Starting Deploy Docker to EB"
+      - run: echo "This job is running on a ${{ runner.os }} server hosted by GitHub!"
+
+      - name: Checkout code
+      - uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      # - name: Build and test React client
+      # - run: docker build -t ksch0479/react-test -f ./client/Dockerfile.dev ./client
+      # - run: docker run -e CI=true ksch0479/react-test npm test
+
+      - name: Build Docker image
+      - run: docker build -t ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest ./
+
+      - name: Push images to DockerHub
+      - run: docker push ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest
+
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          application_name: rss-to-telegram
+          environment_name: rss-to-telegram-env
+          existing_bucket_name: elasticbeanstalk-eu-north-1-476114132677
+          region: eu-north-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip

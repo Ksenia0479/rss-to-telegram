@@ -1,0 +1,58 @@
+// This is Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum LangCode {
+  en
+  ru
+  es
+  fr
+  de
+  ja
+  it
+  pt
+  zh
+}
+
+model User {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId 
+  setting     Setting?  @relation(fields: [settingId], references: [id], onDelete: NoAction)
+  settingId   String?   @unique @map("setting_id")
+  chatId      String    @unique @map("chat_id")
+  Rss         Rss[]    
+  createdAt   DateTime  @default(now()) @map("created_at")
+  deletedAt   DateTime? @map("deleted_at")
+}
+
+model Rss {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  user             User      @relation(fields: [userId], references: [id], onDelete: NoAction)
+  userId           String    @map("user_id")
+  url              String    
+  name             String    
+  channelId        String    @map("channel_id")
+  channelTitle     String    @map("channel_title")
+  lastPubDate      DateTime  @map("last_pub_date")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")  
+
+  @@unique([channelId, name, deletedAt])
+  @@unique([channelId, url, deletedAt])
+}
+
+model Setting {
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+  langCode            LangCode  @default(en) @map("lang_code")
+  enableTranslation   Boolean   @default(false) @map("enable_translation")
+  user                User?     @relation
+  createdAt           DateTime  @default(now()) @map("created_at")
+  deletedAt           DateTime? @map("deleted_at")
+}
