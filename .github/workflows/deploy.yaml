@@ -7,8 +7,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Starting Deploy Docker to EB
-        run: echo "Starting Deploy Docker to EB"
       - name: Show runner OS
         run: echo "This job is running on a ${{ runner.os }} server hosted by GitHub!"
       - name: Checkout code
@@ -20,9 +18,9 @@ jobs:
       #     docker build -t ksch0479/react-test -f ./client/Dockerfile.dev ./client
       #     docker run -e CI=true ksch0479/react-test npm test
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest ./
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.AWS_APP_NAME }}:latest ./
       - name: Push images to DockerHub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/rss-to-telegram:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.AWS_APP_NAME }}:latest
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
       - name: Deploy to EB
@@ -30,9 +28,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: rss-to-telegram
-          environment_name: rss-to-telegram-env
-          existing_bucket_name: elasticbeanstalk-eu-north-1-476114132677
-          region: eu-north-1
+          application_name: ${{ secrets.AWS_APP_NAME }}
+          environment_name: ${{ secrets.AWS_APP_NAME }}-env
+          existing_bucket_name: ${{ secrets.AWS_BUCKET_NAME }}
+          region: ${{ secrets.AWS_REGION }}
           version_label: ${{ github.sha }}
           deployment_package: deploy.zip
