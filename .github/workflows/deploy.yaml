@@ -13,10 +13,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Login to DockerHub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      # - name: Build and test React client
-      #   run: |
-      #     docker build -t ksch0479/react-test -f ./client/Dockerfile.dev ./client
-      #     docker run -e CI=true ksch0479/react-test npm test
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.AWS_APP_NAME }}:latest ./
       - name: Push images to DockerHub
