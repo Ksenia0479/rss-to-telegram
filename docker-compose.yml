@@ -9,6 +9,8 @@ services:
     volumes:
       - /app/node_modules
       - .:/app
+    depends_on:
+      - redis
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
