@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, Controller, Get } from '@nestjs/common';
 import { LangCode } from '@prisma/client';
 
 import { Context, deunionize } from 'telegraf';
@@ -14,6 +14,14 @@ import { AppService } from './telegram.service';
 // TODO - add command on Stop and Block action
 // TODO - Move all not constant values to constants
 // TODO - Remove redundant error logging (looping)
+
+@Controller()
+export class AppController {
+  @Get('/start_page')
+  getStartPage(): string {
+    return 'Hi there!';
+  }
+}
 
 @Update()
 export class AppUpdate {
