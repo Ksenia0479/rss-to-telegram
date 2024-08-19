@@ -5,6 +5,11 @@ services:
     restart: always
     ports:
       - '${REDIS_PORT}:${REDIS_PORT}'
+  nginx: 
+    restart: always
+    build: 
+      dockerfile: Dockerfile
+      context: ./nginx
   app:
     build:
       dockerfile: Dockerfile
