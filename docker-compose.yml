@@ -5,11 +5,6 @@ services:
     restart: always
     ports:
       - '${REDIS_PORT}:${REDIS_PORT}'
-  nginx: 
-    restart: always
-    build: 
-      dockerfile: Dockerfile
-      context: ./nginx
   app:
     build:
       dockerfile: Dockerfile
@@ -18,10 +13,3 @@ services:
       - "${PORT}:${PORT}"
     depends_on:
       - redis
-    environment:
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - DATABASE_URL=${DATABASE_URL}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PORT=${PORT}
