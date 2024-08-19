@@ -17,8 +17,9 @@ jobs:
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.AWS_APP_NAME }}:latest ./
       - name: Build Nginx image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/nginx ./nginx
-      - name: Push images to DockerHub
+      - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.AWS_APP_NAME }}:latest
+      - name: Push Nginx image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/nginx
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
