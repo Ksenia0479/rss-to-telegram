@@ -1,4 +1,4 @@
-import { Logger, Controller, Get } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { LangCode } from '@prisma/client';
 
 import { Context, deunionize } from 'telegraf';
