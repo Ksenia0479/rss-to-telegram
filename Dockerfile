@@ -12,5 +12,6 @@ COPY package.json ./
 RUN npm install
 COPY --from=builder app/dist/ ./dist/
 COPY --from=builder app/node_modules/.prisma/client/ ./node_modules/.prisma/client/
+COPY ./src/telegram/markdowns/ ./dist/telegram/markdowns/
 COPY ./prisma ./prisma/
 CMD ["npm", "run", "start:prod"]
