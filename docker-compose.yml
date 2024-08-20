@@ -4,12 +4,19 @@ services:
     image: redis
     restart: always
     ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
+      - 6379:6379
   app:
     build:
       dockerfile: Dockerfile
       context: .
     ports:
-      - ${PORT}:${PORT}
+      - 80:3000
     depends_on:
       - redis
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PORT=${PORT}
