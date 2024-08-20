@@ -11,7 +11,7 @@ import { UtilsModule } from 'src/utilities/utilities.module';
 import { ArticleModule } from 'src/utilities/article/article.module';
 import { ValidationModule } from 'src/utilities/validation/validation.module';
 
-import { AppUpdate, AppController } from './telegram.update';
+import { AppUpdate } from './telegram.update';
 import { AppService } from './telegram.service';
 
 @Module({
@@ -33,7 +33,6 @@ import { AppService } from './telegram.service';
     }),
   ],
   providers: [AppService, AppUpdate],
-  controllers: [AppController],
   exports: [AppService],
 })
 export class AppModule {}
