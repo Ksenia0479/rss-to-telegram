@@ -1,15 +1,15 @@
-version: '3.8'
+version: 3
 services:
   redis:
-    image: 'redis:7-alpine'
+    image: redis
     restart: always
     ports:
-      - '${REDIS_PORT}:${REDIS_PORT}'
+      - ${REDIS_PORT}:${REDIS_PORT}
   app:
     build:
       dockerfile: Dockerfile
       context: .
     ports:
-      - "${PORT}:${PORT}"
+      - ${PORT}:${PORT}
     depends_on:
       - redis
