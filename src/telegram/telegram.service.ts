@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { User, Rss, LangCode } from '@prisma/client';
 
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import { join } from 'path';
 
 import * as RssErrors from 'src/rssPrisma/rss.errors';
 import * as RssInterfaces from 'src/rssPrisma/rss.interfaces';
@@ -20,7 +21,7 @@ import * as Interfaces from './telegram.interfaces';
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
-  private readonly filePath: string = 'src/telegram/markdowns';
+  private readonly filePath: string = join(__dirname, '/markdowns');
 
   constructor(
     private readonly rssService: RssService,
