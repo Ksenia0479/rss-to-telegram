@@ -3,7 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { OpenaiService } from './openai.service';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: ['.env', `.env.${process.env.NODE_ENV}.local`],
+    }),
+  ],
   providers: [OpenaiService],
   exports: [OpenaiService],
 })

@@ -35,7 +35,11 @@ import { QueuesService } from './queues.service';
       adapter: BullMQAdapter,
     }),
     BullModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: ['.env', `.env.${process.env.NODE_ENV}.local`],
+        }),
+      ],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         connection: {
