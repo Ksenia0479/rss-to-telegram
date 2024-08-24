@@ -23,7 +23,9 @@ import { AppService } from './telegram.service';
     RssPrismaModule,
     ValidationModule,
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: ['.env', `.env.${process.env.NODE_ENV}.local`],
+    }),
     TelegrafModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

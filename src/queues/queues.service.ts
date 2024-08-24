@@ -155,14 +155,13 @@ export class QueuesService implements OnModuleInit {
     await this.rssQueue.add(
       this.checkRssFeedJob,
       { rssId },
-      { jobId: rssId, repeat: { every: this.repeatJobEvery } },
+      { repeat: { every: this.repeatJobEvery, key: rssId } },
     );
     this.logger.log(`Check rss job successfully added with ID: ${rssId}`);
   }
   async deleteCheckRssJob(rssId: Rss['id']) {
     this.logger.log(`Removing check rss job with ID: ${rssId}`);
-    const jobKey = `check-rss-feed:${rssId}:::${this.repeatJobEvery}`;
-    await this.rssQueue.removeRepeatableByKey(jobKey);
+    await this.rssQueue.removeRepeatableByKey(rssId);
     this.logger.log(`Check rss job successfully removed with ID: ${rssId}`);
   }
 
