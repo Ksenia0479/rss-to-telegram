@@ -227,10 +227,12 @@ export class QueuesService implements OnModuleInit {
     });
 
     const caption = text
-      ? `${title}\n\n${text}\n\n${item.link}`
-      : `${title}\n\n${item.link}`;
+      ? `<b>${title}</b>\n\n${text}\n\n<a href="${item.link}">${item.link}</a>`
+      : `<b>${title}</b>\n\n<a href="${item.link}">${item.link}</a>`;
 
-    await this.bot.telegram.sendMessage(rss.channelId, caption);
+    await this.bot.telegram.sendMessage(rss.channelId, caption, {
+      parse_mode: 'HTML',
+    });
 
     await this.rssService.updateRss(rss.id, {
       lastPubDate: new Date(item.isoDate),
