@@ -165,18 +165,27 @@ export class QueuesService implements OnModuleInit {
     this.logger.log(`Check rss job successfully removed with ID: ${rssId}`);
   }
 
-  private async prepareReplyTextMessage(
+  private async prepareMessageContent(
     item: Item,
     settings: {
       enableTranslation: boolean;
       langCode: LangCode;
     },
-  ): Promise<{ title: string; text: string }> {
+  ): Promise<{ title: string; text: string; image: Buffer; siteName: string }> {
     const tLang = this.utilitiesService.getIso6391Name(settings.langCode);
-    const article = await this.articleService.getArticleContent(item.link);
+    const { article, metaData } = await this.articleService.getArticleContent(
+      item.link,
+    );
+
+    const imgUrl = metaData['og:image'] || metaData.image;
+    const siteName = metaData['og:site_name'] || metaData.site_name;
+    const description = metaData['og:description'] || metaData.description;
+
+    const image = await this.utilitiesService.resizeImage(imgUrl, 205);
+
     const isLangDif = tLang.toLowerCase() !== article.language.toLowerCase();
 
-    let articleData = { content: '' };
+    let articleData = { content: description };
     if (article.text) {
       articleData = await this.openaiService.getContent('journalist', {
         content: { title: item.title, text: article.text, tags: '' },
@@ -191,7 +200,7 @@ export class QueuesService implements OnModuleInit {
         tLang: tLang,
       });
 
-      let tArticle = { content: '' };
+      let tArticle = { content: description };
       if (articleData.content) {
         tArticle = await this.openaiService.getContent('translator', {
           content: articleData.content,
@@ -200,13 +209,10 @@ export class QueuesService implements OnModuleInit {
         });
       }
 
-      return {
-        title: tTitle.content,
-        text: tArticle.content,
-      };
+      return { title: tTitle.content, text: tArticle.content, image, siteName };
     }
 
-    return { title: item.title, text: articleData.content };
+    return { title: item.title, text: articleData.content, image, siteName };
   }
 
   async handleSendMessageJobProcess(rssId: Rss['id'], item: Item) {
@@ -221,18 +227,31 @@ export class QueuesService implements OnModuleInit {
 
     const { enableTranslation, langCode } = rss.user.setting;
 
-    const { title, text } = await this.prepareReplyTextMessage(item, {
-      enableTranslation,
-      langCode,
-    });
+    const { title, text, image, siteName } = await this.prepareMessageContent(
+      item,
+      {
+        enableTranslation,
+        langCode,
+      },
+    );
 
-    const caption = text
-      ? `<b>${title}</b>\n\n${text}\n\n<a href="${item.link}">${item.link}</a>`
-      : `<b>${title}</b>\n\n<a href="${item.link}">${item.link}</a>`;
+    if (image) {
+      const caption = `<b>${title}</b>\n\n${text}\n\n<a href="${item.link}">${siteName || item.link}</a>`;
 
-    await this.bot.telegram.sendMessage(rss.channelId, caption, {
-      parse_mode: 'HTML',
-    });
+      await this.bot.telegram.sendPhoto(
+        rss.channelId,
+        {
+          source: image,
+        },
+        { caption, parse_mode: 'HTML' },
+      );
+    } else {
+      const caption = `<b>${title}</b>\n\n${text}\n\n<a href="${item.link}">${item.link}</a>`;
+
+      await this.bot.telegram.sendMessage(rss.channelId, caption, {
+        parse_mode: 'HTML',
+      });
+    }
 
     await this.rssService.updateRss(rss.id, {
       lastPubDate: new Date(item.isoDate),
