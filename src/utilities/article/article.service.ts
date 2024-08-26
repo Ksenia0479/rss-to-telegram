@@ -69,25 +69,48 @@ export class ArticleService {
   async getArticleContent(url: string): Promise<Interfaces.ExtractedArticle> {
     this.logger.log(`Getting article content from url: ${url}`);
     const feedData = await this.utilitiesService.getFeedData(url);
-    const articleContent = this.extractArticle(feedData, url);
+    const article = this.extractArticle(feedData, url);
+    const metaData = this.extractArticleMetadata(feedData);
     this.logger.log(`Successfully fetched article content from url: ${url}`);
-    return articleContent;
+    return { article, metaData };
+  }
+
+  private initializeJSDOM(feedData: string): Document {
+    const { JSDOM } = jsdom;
+    // https://github.com/jsdom/jsdom/issues/2230
+    const virtualConsole = new jsdom.VirtualConsole();
+    virtualConsole.on('error', () => {
+      // 'No-op to skip console errors.'
+    });
+    const dom = new JSDOM(feedData, { virtualConsole });
+    return dom.window.document;
+  }
+
+  private extractArticleMetadata(feedData: string): Record<string, string> {
+    this.logger.log('Extracting article metadata');
+    const document = this.initializeJSDOM(feedData);
+
+    const metaData = {};
+    const metaElements = document.querySelectorAll('meta');
+
+    metaElements.forEach((meta) => {
+      const name = meta.getAttribute('name') || meta.getAttribute('property');
+      const content = meta.getAttribute('content');
+      if (name && content) {
+        metaData[name] = content;
+      }
+    });
+
+    return metaData;
   }
 
   private extractArticle(
     feedData: string,
     url: string,
-  ): Interfaces.ExtractedArticle {
+  ): Interfaces.ArticleContent {
     try {
       this.logger.log(`Extracting article content from url: ${url}`);
-      // https://github.com/jsdom/jsdom/issues/2230
-      const { JSDOM } = jsdom;
-      const virtualConsole = new jsdom.VirtualConsole();
-      virtualConsole.on('error', () => {
-        // 'No-op to skip console errors.'
-      });
-      const dom = new JSDOM(feedData, { virtualConsole });
-      const document = dom.window.document;
+      const document = this.initializeJSDOM(feedData);
       const lang = document.documentElement.getAttribute('lang');
       const language = lang ? this.utilitiesService.getIso6391Name(lang) : '';
       const text = this.getArticleText(document, url);
