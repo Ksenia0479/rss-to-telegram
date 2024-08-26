@@ -12,6 +12,7 @@ import { join } from 'path';
 
 import * as _iso6391 from 'iso-639-1';
 import * as Parser from 'rss-parser';
+import * as sharp from 'sharp';
 
 import * as Errors from './utilities.errors';
 import * as Interfaces from './utilities.interfaces';
@@ -54,6 +55,15 @@ export class UtilitiesService {
 
       return result;
     }, []);
+  }
+
+  async resizeImage(imageUrl: string, height: number): Promise<Buffer> {
+    const response = await firstValueFrom(
+      this.httpService.get(imageUrl, { responseType: 'arraybuffer' }),
+    );
+    const buffer = Buffer.from(response.data, 'binary');
+    const resizedBuffer = await sharp(buffer).resize(null, height).toBuffer();
+    return resizedBuffer;
   }
 
   async verifyChatExistence(
